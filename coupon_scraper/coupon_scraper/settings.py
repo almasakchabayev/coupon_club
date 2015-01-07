@@ -10,16 +10,16 @@
 import sys
 import os
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-DJANGO_BASE_DIR = os.path.join(PROJECT_DIR, 'coupon_scraper')
+DJANGO_BASE_DIR = os.path.join(PROJECT_DIR, 'coupon_club')
 sys.path.insert(0, DJANGO_BASE_DIR)
-os.environ['DJANGO_SETTINGS_MODULE'] = 'coupon_scraper.settings'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'coupon_club.settings'
 BOT_NAME = 'coupon_scraper'
 
 SPIDER_MODULES = ['coupon_scraper.spiders']
 NEWSPIDER_MODULE = 'coupon_scraper.spiders'
 
 ITEM_PIPELINES = {
-    #'coupon_scraper.pipelines.MybotPipeline': 1000,
+    'coupon_scraper.pipelines.CouponScraperPipeline': 500,
 }
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
