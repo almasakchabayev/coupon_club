@@ -5,20 +5,20 @@ from scrapy.selector import Selector
 
 from coupon_scraper.items import DealItem
 
-from coupon_scraper.spiders.utils import clean_extract, get_numbers_from_string
+from coupon_scraper.spiders.utils import clean_extract, get_numbers_from_string, drop_html_tags
 
-def clean_extract(some_selector,xpath_of_info):
-    try:
-        clean_value_list = some_selector.xpath(xpath_of_info).extract()
-        i=0
-        clean_value=''
-        for i in range(0, len(clean_value_list)):
+# def clean_extract(some_selector,xpath_of_info):
+#     try:
+#         clean_value_list = some_selector.xpath(xpath_of_info).extract()
+#         i=0
+#         clean_value=''
+#         for i in range(0, len(clean_value_list)):
             
-            clean_value=clean_value+clean_value_list[i]
-            i+=1
-    except:
-        clean_value = ''
-    return clean_value
+#             clean_value=clean_value+clean_value_list[i]
+#             i+=1
+#     except:
+#         clean_value = ''
+#     return clean_value
 
 
 class BesmartSpider(Spider):
@@ -37,17 +37,41 @@ class BesmartSpider(Spider):
             item = DealItem()
             item['website']='besmart'
             item['website_url'] = 'http://besmart.kz'
-            item['discount']=clean_extract(deal,'.//div[@class="percent"]/text()')
-            
-            item['title']=""
-            item['summary_front']=clean_extract(deal,'.//div[@class="title"]/a/text()')
-            item['number_of_purchases']=clean_extract(deal,'.//div[@class="sold-amount"]/text()')
-            item['image_url']='http://www.besmart.kz'+ deal.xpath('.//img[@class="lazy-img"]/@data-original').extract()[0]
-            item['old_price']=clean_extract(deal,'.//div[@class="real-price"]/text()')
-            
-            item['new_price']=clean_extract(deal,'.//span[@class="big"]/text()')
-            item['deal_url']='http://www.besmart.kz'+ deal.xpath('.//div[@class="title"]/a/@href').extract()[0]
-            
+
+            raw_discount = clean_extract(
+                deal, 
+                'div.percent ::text',
+            )
+            item['discount'] = get_numbers_from_string(raw_discount)
+            item['title'] = ''
+            raw_summary_front = clean_extract(
+                deal, 
+                'div.title',
+            )
+            item['summary_front'] = drop_html_tags(raw_summary_front)
+            raw_number_of_purchases = clean_extract(
+                deal, 
+                'div.sold-amount ::text',
+            )
+            item['number_of_purchases'] = get_numbers_from_string(raw_number_of_purchases)
+            item['image_url'] = 'http://www.chocolife.me' + clean_extract(
+                deal,
+                'img.lazy-img ::attr(data-original)',
+            )
+            raw_old_price = clean_extract(
+                deal,
+                'div.real-price ::text',
+            )
+            item['old_price'] = get_numbers_from_string(raw_old_price)
+            raw_new_price = clean_extract(
+                deal,
+                'div.discount-price span.big ::text',
+            )
+            item['new_price'] = get_numbers_from_string(raw_new_price)
+            item['deal_url'] = 'http://www.besmart.kz' + clean_extract(
+                deal,
+                'div.title a ::attr(href)',
+            )            
             request = Request(
                 item['deal_url'],
                 callback=self.parse_deal_info
@@ -58,10 +82,10 @@ class BesmartSpider(Spider):
     def parse_deal_info(self, response):
         item = response.meta['item']
         sel = Selector(response)
-        sel_one=sel.xpath('//div[@class="deal-left star-list"]')
-        sel_two=sel.xpath('//div[@class="contacts large"]')
-        item['info']=clean_extract(sel_one,'.//span/text()')
-        item['address']=clean_extract(sel_two,'.//li/text()')
+        item['conditions'] = clean_extract(
+            sel,
+            'div.deal-conditions div.star-list',
+        )
         yield item
           
         

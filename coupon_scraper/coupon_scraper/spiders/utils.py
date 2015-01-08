@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
+import lxml
 
-    # mb put this in utils both support functions
 def clean_extract(selector, path_of_info, elements_order=0):
     try:
         clean_value = selector.css(path_of_info).extract()[elements_order]
@@ -17,3 +17,20 @@ def get_numbers_from_string(string):
         return numbers_list[0]
     else:
         return 0
+
+def drop_html_tags(string):
+    tag = False
+    quote = False
+    out = u''
+
+    for c in string:
+            if c == u'<' and not quote:
+                tag = True
+            elif c == u'>' and not quote:
+                tag = False
+            elif (c == '"' or c == "'") and tag:
+                quote = not quote
+            elif not tag:
+                out = out + c
+
+    return out

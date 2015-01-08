@@ -11,6 +11,8 @@ django.setup()
 
 class CouponScraperPipeline(object):
     def process_item(self, item, spider):
+
+        # everything in an item should be a string so probably need to convert here
         deal, deal_created = models.Deal.objects.get_or_create(
             deal_url=item['deal_url'],
         )
@@ -19,11 +21,12 @@ class CouponScraperPipeline(object):
             url=item['website_url'],
         )
         if deal_created:
+            deal.discount = item['discount']
             deal.title = item['title']
+            deal.number_of_purchases = item['number_of_purchases']
+            #summary_front
             deal.old_price = item['old_price']
             deal.new_price = item['new_price']
-            deal.number_of_purchases = item['number_of_purchases']
-            deal.discount = item['discount']
             deal.conditions = item['conditions']
             deal.image_url = item['image_url']
             # deal.tag = item['tag']

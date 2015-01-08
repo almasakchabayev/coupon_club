@@ -7,7 +7,6 @@ from scrapy.spider import Spider
 from scrapy.selector import Selector
 
 from coupon_scraper.items import DealItem
-
 from coupon_scraper.spiders.utils import clean_extract, get_numbers_from_string
 
 
