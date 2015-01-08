@@ -7,7 +7,7 @@
 
 import scrapy
 
-class MyItem(scrapy.Item):
+class DealItem(scrapy.Item):
 
    # ... other item fields ...
    image_url = scrapy.Field()
@@ -24,5 +24,6 @@ class MyItem(scrapy.Item):
    tag = scrapy.Field()
    deal_url = scrapy.Field()
    website = scrapy.Field()
+   website_url = scrapy.Field()
    # address = scrapy.Field()
    conditions = scrapy.Field()

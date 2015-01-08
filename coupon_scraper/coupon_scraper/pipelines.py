@@ -15,8 +15,8 @@ class CouponScraperPipeline(object):
             deal_url=item['deal_url'],
         )
         chocolife, created = models.Website.objects.get_or_create(
-            name='chocolife',
-            url='http://www.chocolife.kz'
+            name=item['website'],
+            url=item['website_url'],
         )
         if deal_created:
             deal.title = item['title']

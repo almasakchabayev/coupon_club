@@ -6,24 +6,9 @@ from scrapy.http import Request
 from scrapy.spider import Spider
 from scrapy.selector import Selector
 
-from coupon_scraper.items import MyItem
+from coupon_scraper.items import DealItem
 
-    # mb put this in utils both support functions
-def clean_extract(selector, path_of_info, elements_order=0):
-    try:
-        clean_value = selector.css(path_of_info).extract()[elements_order]
-        clean_value = clean_value.strip()
-    except:
-        clean_value = ''
-    # self.log('clean_value="" for \nxpath: %s\n count: %d\n item: %s' % (xpath_of_info, count, self.items[count]))
-    return clean_value
-
-def get_numbers_from_string(string):
-    numbers_list = re.findall('\d+', string.replace(' ', ''))
-    if numbers_list:
-        return numbers_list[0]
-    else:
-        return 0
+from coupon_scraper.spiders.utils import clean_extract, get_numbers_from_string
 
 
 class MySpider(Spider):
@@ -40,7 +25,9 @@ class MySpider(Spider):
         deals = sel.xpath('//li[@class="b-deal"]')
 
         for deal in deals:
-            item = MyItem()
+            item = DealItem()
+            item['website'] = 'chocolife'
+            item['website_url'] = 'http://www.chocolife.me/'
             # need to finish
             # categories = clean_extract(
             #     deal,
@@ -107,7 +94,6 @@ class MySpider(Spider):
             sel,
             'ul.b-conditions-list',
         )
-        item['website'] = 'chocolife'
         # raw_end_timestamp = clean_extract(
         #     sel,
         #     'p.js-e-offer__expire-date ::text',
