@@ -14,6 +14,10 @@ class CouponScraperPipeline(object):
         deal, deal_created = models.Deal.objects.get_or_create(
             deal_url=item['deal_url'],
         )
+        chocolife, created = models.Website.objects.get_or_create(
+            name='chocolife',
+            url='http://www.chocolife.kz'
+        )
         if deal_created:
             deal.title = item['title']
             deal.old_price = item['old_price']
@@ -21,8 +25,10 @@ class CouponScraperPipeline(object):
             deal.number_of_purchases = item['number_of_purchases']
             deal.discount = item['discount']
             deal.conditions = item['conditions']
+            deal.image_url = item['image_url']
             # deal.tag = item['tag']
-            # deal.website = item['website']
+            if 'choco' in item['website']:
+                deal.website = chocolife
         else:
             deal.number_of_purchases = item['number_of_purchases']
 

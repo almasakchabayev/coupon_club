@@ -1,5 +1,8 @@
 from django.db import models
 
+class Website(models.Model):
+    name = models.CharField(max_length=255)
+    url = models.URLField(max_length=255)
 
 class Tag(models.Model):
     name = models.CharField(max_length=255)
@@ -15,4 +18,4 @@ class Deal(models.Model):
     # tag = models.ManyToManyField(Tag, blank=True)
     image_url = models.URLField(default='')
     deal_url = models.URLField(default='')
-    website = models.URLField(default='')
+    website = models.ForeignKey(Website, related_name='deals', null=True)

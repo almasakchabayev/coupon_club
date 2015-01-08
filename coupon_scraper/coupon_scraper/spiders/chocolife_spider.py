@@ -9,16 +9,13 @@ from scrapy.selector import Selector
 from coupon_scraper.items import MyItem
 
     # mb put this in utils both support functions
-def clean_extract(selector, path_of_info, path='xpath'):
+def clean_extract(selector, path_of_info, elements_order=0):
     try:
-        if 'css' in path:
-            clean_value = selector.css(path_of_info).extract()[0]
-        else:
-            clean_value = selector.xpath(path_of_info).extract()[0]
+        clean_value = selector.css(path_of_info).extract()[elements_order]
+        clean_value = clean_value.strip()
     except:
         clean_value = ''
     # self.log('clean_value="" for \nxpath: %s\n count: %d\n item: %s' % (xpath_of_info, count, self.items[count]))
-    clean_value = clean_value.strip()
     return clean_value
 
 def get_numbers_from_string(string):
@@ -42,48 +39,50 @@ class MySpider(Spider):
         sel = Selector(response)
         deals = sel.xpath('//li[@class="b-deal"]')
 
-        for deal in deals[:5]:
+        for deal in deals:
             item = MyItem()
             # need to finish
-            categories = clean_extract(
-                deal,
-                './/@data-categories',
-            )
+            # categories = clean_extract(
+            #     deal,
+            #     './/@data-categories',
+            # )
             raw_discount = clean_extract(
                 deal, 
-                './/span[@class="e-deal__discount"]/text()', 
+                'span.e-deal__discount ::text',
             )
             item['discount'] = get_numbers_from_string(raw_discount)
             item['title'] = clean_extract(
                 deal, 
-                './/h2[@class="e-deal__title"]/text()', 
+                'h2.e-deal__title ::text',
             )
             item['summary_front'] = clean_extract(
                 deal, 
-                './/p[@class="e-deal__text"]/text()', 
+                'p.e-deal__text ::text',
             )
             raw_number_of_purchases = clean_extract(
                 deal, 
-                './/span[@class="e-deal__link"]/text()', 
+                'span.e-deal__link ::text',
             )
             item['number_of_purchases'] = get_numbers_from_string(raw_number_of_purchases)
             item['image_url'] = 'http://www.chocolife.me' + clean_extract(
                 deal,
-                './/img[@class="e-deal__img lazy"]/@data-original', 
+                'img.e-deal__img ::attr(data-original)',
             )
             raw_old_price = clean_extract(
                 deal,
-                './/span[@class="e-deal__price e-deal__price--old "]/text()',
+                'span.e-deal__price--old ::text',
+                0
             )
             item['old_price'] = get_numbers_from_string(raw_old_price)
             raw_new_price = clean_extract(
                 deal,
-                './/span[@class="e-deal__price "]/text()',
+                'span.e-deal__price ::text',
+                -1
             )
             item['new_price'] = get_numbers_from_string(raw_new_price)
             item['deal_url'] = clean_extract(
                 deal,
-                './/a[@class="e-link--deal"]/@href',
+                'a.e-link--deal ::attr(href)',
             )
             request = Request(
                 item['deal_url'],
@@ -106,9 +105,9 @@ class MySpider(Spider):
         # )
         item['conditions'] = clean_extract(
             sel,
-            './/ul[@class="b-conditions-list"',
+            'ul.b-conditions-list',
         )
-        item['website'] = 'www.chocolife.kz'
+        item['website'] = 'chocolife'
         # raw_end_timestamp = clean_extract(
         #     sel,
         #     'p.js-e-offer__expire-date ::text',
